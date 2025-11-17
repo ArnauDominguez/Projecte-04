@@ -25,5 +25,9 @@ En aquest Kanban haureu d’introduir totes les tasques corresponents del **Back
 ### Enllaç al document que conté tot el Product Backlog
 *(Afegiu aquí l’enllaç quan el tingueu)*
 
+---
+
+### Tasques
+- [Tasca 00](Tasca00/README.md)
 
 [Tornar a la presentació personal](https://github.com/ArnauDominguez)
