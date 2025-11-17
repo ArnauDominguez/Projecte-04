@@ -28,6 +28,6 @@ En aquest Kanban haureu d’introduir totes les tasques corresponents del **Back
 ---
 
 ### Tasques
-- [Tasca 00](Tasca00/README.md)
+- [Tasca 01](Tasca01/README.md)
 
 [Tornar a la presentació personal](https://github.com/ArnauDominguez)
