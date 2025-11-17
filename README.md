@@ -43,5 +43,8 @@ En aquest Kanban haureu d’introduir totes les tasques corresponents del **Back
 - [Tasca 13](Tasca13/README.md)
 - [Tasca 14](Tasca14/README.md)
 - [Tasca 15](Tasca15/README.md)
+- [P01](P01/README.md)
+- [P02](P02/README.md)
+- [P03](P03/README.md)
 
 [Tornar a la presentació personal](https://github.com/ArnauDominguez)
