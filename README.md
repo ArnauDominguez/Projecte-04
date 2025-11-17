@@ -25,3 +25,5 @@ En aquest Kanban haureu d’introduir totes les tasques corresponents del **Back
 ### Enllaç al document que conté tot el Product Backlog
 *(Afegiu aquí l’enllaç quan el tingueu)*
 
+
+[Tornar a la presentació personal](https://github.com/ArnauDominguez)
