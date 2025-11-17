@@ -68,6 +68,6 @@ Garantint RTO/RPO de 4 h per Comptabilitat/Clients.
 - INCIBE – Guía de copias de seguridad  
 - Xataka – Backup 3-2-1 (YouTube): https://youtu.be/PM_M4Iz6I4o?si=F7DRyDDTZE3hjWn8
 
-- [Solucio](solucio.md)
+ [Solucio](solucio.md)
 
 [Tornar pàgina projecte](../README.md)
