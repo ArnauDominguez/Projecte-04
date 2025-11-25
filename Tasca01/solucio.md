@@ -58,8 +58,4 @@ Ubicació:
   * La còpia al núvol xifrada
 
 
-
-[T01 projecte 4.md](https://github.com/user-attachments/files/23751966/T01.projecte.4.md)
-
-
 [Tornar a enunciat](README.md)
