@@ -1,4 +1,4 @@
-## Part 1
+## Part 1 (Individual)
 
 ## Què copiar? 
 
@@ -36,7 +36,7 @@ Ubicació:
 * Còpia recent: NAS local.  
 * Còpia off-site:  Cloud o disc extern fora de l’empresa.
 
-## Part 2 
+## Part 2 (Parelles)
 
 | Element | Proposta de la Parella | Justificació |
 | :---- | :---- | :---- |
@@ -58,7 +58,7 @@ Ubicació:
 * **1 còpia fora de la ubicació física:**  
   * La còpia al núvol xifrada
 
-## Part 3
+## Part 3 (Grup)
 
 El grup ha de generar un document amb els següents punts resolts:
 
