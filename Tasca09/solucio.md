@@ -13,6 +13,8 @@ Crearàs un servidor NFS (NFSv3) i un client Linux que consumeixi els recursos c
 
 ---
 
+# Fase 1: Preparació de l'entorn
+
 Per començar en aquesta guia hem de tindre 2 maquines, en aquest cas tindrem un ubuntu server i un zorin per simular el clinet.
 
 Les dues maquines han de tindre 2 interifices, la primera NAT i la segona host only.
@@ -26,6 +28,10 @@ sudo apt update && sudo apt upgrade -y
 ```
 
 Un cop que ja tenim actualitzat els paquets, el seguent pas sera començar amb la creació de l'estructura de carpetas, de grups i usuaris.
+
+---
+
+# Fase 2: Preparació del servidor
 
 El primer que farem sera crear els grups neccesaris, en aquest cas en demana que crem 2 grups, el primer devs i el segon admin
 
@@ -106,11 +112,11 @@ chown root:admin /srv/nfs/admin_tools
 Un cop fet això assignare els permisos de la carpeta amb la comanda chmod
 
 ```bash
-chmod 770 /srv/nfs/dev_projects
+chmod 2775 /srv/nfs/dev_projects
 ```
 
 ```bash
-chmod 770 /srv/nfs/admin_tools
+chmod 2775 /srv/nfs/admin_tools
 ```
 
 Per comprobar que els permisos estan correctas farem ls -l per poder veure els permisos de cada carpeta
@@ -144,8 +150,202 @@ systemctl status nfs-kernel-server
 
 ![status](img/8.png)
 
+Per començar editarem l'arxiu /etc/exports per poder decidir quins arxius volem exportar, en aquest cas volem exporta tota la carpeta /srv/nfs
+
+Afegirem una linia adicional al final del arxiu, en aquest cas sera la seguent 
+
+```bash
+/srv/nfs *(rw,sync,no_subtree_check)
+```
+
+![arxiu de configuració](img/9.png)
+
+Per poder aplicar el canvis haurem de reinciar el servei amb la comanda
+
+```bash
+systemctl restart nfs-kernel-server
+```
+Un cop fet això l'iniciem i comprobarem que tot funciona correctament 
+
+En el servidor podem fer la comanda 
+
+```bash
+exportfs -u
+```
+Amb la qual podrem veure quins arxius es poden exportar
+
+![comanda](img/10.png)
+
+Tambe podem fer la seguent comanda per veure des-de quin port treballa, en aquest cas ho fa amb el port 2049
+
+```bash
+rpcinfo -p 192.168.56.101
+```
+![comanda](img/11.png)
+
+Per poder comprobar en la maquina haurem d'instalar el paquet nfs-common, això ho farem amb la seguent comanda
+
+```bash
+sudo apt install nfs-common -y
+```
+
+Un cop fet això en conectarem al servidor amb la comanda showmount -e IP
+
+En el meu cas sera la seguent comanda 
+
+```bash
+showmount -e 192.168.56.101
+```
+
+![comanda](img/12.png)
+
+En la qual podem veure que la carpeta /srv/nfs
+
 ---
+
+# Fase 3: L'Exportació d'Administració (El Dilema del root_squash)
 
 A continuació farem una prova 1 (L'error comú)
 
-[Tornar a enunciat](README.md)
+Previament ja hem exportat l'arxiu /srv/nfs per tant el seguent pas que hem de fer sera muntar aquest recurs a la carpeta /mnt/admin_tools, en un principi aquesta carpeta no existeix, per tant el primer pas sera crear-la, això ho farem amb la seguent comanda
+
+```bash
+mkdir /mnt/admin_tools 
+```
+
+![Creació de la carpeta](img/13.png)
+
+Un cop que tenim creada la carpeta, el seguent pas sera muntar el recurs, això ho farem amb la comanda mount 
+
+```bash
+mount -t nfs 192.168.56.101:/srv/nfs/admin_tools /mnt/admin_tools
+```
+
+Podrem veure no podem crear cap arxiu ja que no tenim els pemisos ja que el root de la maquina client i el root del servidor no es el mateix
+
+![Carpeta](img/14.png)
+
+Mentre que si intentem crear un arxiu amb l'usuari admin si que podrem, ja que aquest usuari si que te permisos en aquesta carpeta
+
+![Carpeta](img/15.png)
+
+Podem veure que l'arxiu que hem creat es propietat de admin01
+
+![Carpeta](img/17.png)
+
+A continuació ensenyare com fer per poder crear arxius amb root
+
+Prova 2 (La Solució)
+
+Per començar haurem d'editar l'arxiu /etc/exports en el qual substituirem la linia que hem escrit previament per les seguents.
+
+```bash
+/srv/nfs/admin_tools *(rw,sync,no_subtree_check,no_root_squash)
+/srv/nfs/dev_projects *(rw,sync,no_subtree_check)
+```
+
+Un cop fet això reiniciem el servei un altre cop amb la comanda 
+
+```bash
+systemctl restart nfs-kernel-server
+```
+
+A continuació haurem de desmuntar i muntar un altre cop el recurs, en el meu cas la comanda per desmuntar sera 
+
+```bash
+umount -t nfs 192.168.56.101:/srv/nfs/admin_tools /mnt/admin_tools
+```
+I per muntar
+
+```bash
+mount -t nfs 192.168.56.101:/srv/nfs/admin_tools /mnt/admin_tools
+```
+
+Un cop fet això podrem crear un now arxiu, per exemple en aquest cas he creat una arxiu anomenat file2
+
+![Carpeta](img/16.png)
+
+![Carpeta](img/18.png)
+
+Això a causa de que hem modificat l'arxiu /etc/exports fent que el root de la maquina fisica sigui el mateix que el root del servidor, per tant tenim total llibertat 
+
+---
+
+# Fase 4: L'Exportació de Desenvolupament (Permisos rw vs ro)
+
+A continuació el client ens demana el seguent la xarxa d'administració (p.ex., 192.168.56.0/24) hi pugui escriure, però que la xarxa de consultors (p.ex., 192.168.56.100) només pugui llegir.
+
+Per poder fer això haurem de modificar l'arxiu /etc/exports i substituir la linia "/srv/nfs/dev_projects *(rw,sync,no_subtree_check)" per les seguents 
+
+```bash
+/srv/nfs/dev_projects 192.168.56.0/24(rw,sync,no_subtree_check)
+/srv/nfs/dev_projects 192.168.56.140(ro,sync,no_subtree_check)
+```
+![Carpeta](img/19.png)
+
+Això ho fem per poder assignar permisos depened de la ip que tingui l'usuari
+
+Tot seguit reinciem el servei amb la comanda 
+
+```bash
+systemctl restart nfs-kernel-server
+```
+
+Un cop fet això haurem de muntar el disc dev_projects per comprobar que tot funciona correctament.
+
+El primer pas sera crear la carpeta amb la seguent comanda
+
+```bash
+mkdir /mnt/dev_projects
+```
+
+El seguent pas que farem sera modificar la nostre ip, en aquest cas probarem amb la ip ```192.168.56.128``` per poder fer això anirem a la configuració de xarxa i colocarem la ip manualment i muntarem el disc
+
+![Configuració de xarxa](img/20.png)
+
+Un cop fet això si fem login l'usuari dev01 com que tenim una ip dins del rang que pot editar dins de la carpeta si que podrem crear arxius
+
+![Creació d'arxiu](img/22.png)
+
+Mentre que canviem la ip ```192.168.56.140``` podrem observar que no podem editar els arxius però si que podem veure que hi ha a la carpeta, haurem de tornar a desmuntar i muntar el disc
+
+![Canvi d'IP](img/23.png)
+
+Podrem veure que podem accedir a la carpeta i veure que hi ha dins però no podrem modificar el contigut ja que nomes tenim permisos de lectura
+
+![permisos](img/24.png)
+
+Ara per ultim farem login amb l'usuari admin01 i intentarem crear un arxiu en la carpeta dev_projects
+
+![permisos](img/25.png)
+
+Podem veure que no podem crear cap arxius dins de la carpeta dev_projects ja que no tenim els permisos neccesaris ja que l'usuari admin01 no forma part del grup dev01
+
+---
+
+# Fase 5: Muntatge Automàtic amb /etc/fstab
+
+
+Ara per ultim modificarem l'arxiu /etc/fstab per poder configurar que els recursos compartits no es tinguin que muntar cada vegada que entrem
+
+Per començar farem la seguent comanda per entrar al arxiu
+
+```bash
+sudo nano /etc/fstab
+```
+
+En el qual haurem d'afegir aquestes dues lines al final
+
+```bash
+192.168.56.101:/srv/nfs/admin_tools /mnt/admin_tools nfs defaults 0 0
+192.168.56.101:/srv/nfs/dev_projects /mnt/dev_projects nfs defaults 0 0
+```
+![arxiu](img/26.png)
+
+Un cop fet això reiniciem la maquina i confirmem que discos s'han muntat correctament 
+
+![discos muntats](img/27.png)
+
+---
+
+# Conclusió
