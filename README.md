@@ -47,4 +47,6 @@ En aquest Kanban haureu d’introduir totes les tasques corresponents del **Back
 - [P02](P02/README.md)
 - [P03](P03/README.md)
 
+[Kanban](https://planner.cloud.microsoft/webui/plan/o5NK9YbCyESoiHMaY59Tg5YAF6Sq/view/board?tid=c7b5981a-7820-4ac8-ae65-03515ea81317)
+
 [Tornar a la presentació personal](https://github.com/ArnauDominguez)
